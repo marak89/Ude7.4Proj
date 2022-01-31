@@ -5,8 +5,11 @@ ini_set('display_errors','1');
 
 function dump($data)
 {
+    if($data === null){
+        $data = "== NULL ==";
+    }
     echo PHP_EOL;
-    echo "<div style='
+    echo "<br><div style='
         display: inline-block;
         padding: 0 10px;
         border: 1px solid gray;
