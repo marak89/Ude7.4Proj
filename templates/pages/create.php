@@ -1,3 +1,8 @@
-<h3>Nowa notatka</h3>
-<h4>Form dodawania notatek</h4>
-<?php dump($params['resultCreate'] ?? "") ?>
+<div>
+  <h3> nowa notatka </h3>
+  <div>
+    Tutaja będzie formularz dla nowej notatki:
+
+    <b><?php echo $params['resultCrate'] ?></b>
+  </div>
+</div>
