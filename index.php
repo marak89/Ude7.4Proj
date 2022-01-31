@@ -11,8 +11,12 @@ const DEFAULT_ACTION = 'list';
 
 $action = $_GET['action'] ?? DEFAULT_ACTION;
 $view = new View();
+$viewParams = [];
+if($action === 'create'){
+    $viewParams['resultCreate'] = "udało się";
+} else {
+    $viewParams['resultList'] = "Wyświetlamy notatki";
+}
 
 
-
-
-$view->render($action);
+$view->render($action, $viewParams);

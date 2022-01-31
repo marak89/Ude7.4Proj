@@ -6,8 +6,9 @@ namespace App;
 
 class View
 {
-    function render(?string $page) :void
+    function render(?string $page, array $params) :void
     {
+        dump($params);
         include_once ("templates/layout.php");
 
     }
