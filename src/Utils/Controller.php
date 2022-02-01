@@ -8,9 +8,22 @@ require_once ("src/View.php");
 
 class Controller
 {
-    public function run(string $action):void
-    {
 
+    private const DEFAULT_ACTION = 'list';
+
+    private array $postData ;
+    private array $getData;
+
+    public function __construct(array $getData, array $postData)
+    {
+        $this->getData = $getData;
+        $this->postData = $postData;
+    }
+
+
+    public function run():void
+    {
+        $action = $_GET['action'] ?? self::DEFAULT_ACTION;
         $view = new View();
         $viewParams = [];
 
@@ -19,11 +32,11 @@ class Controller
                 $page = "create";
                 $created = false;
 
-                if (!empty($_POST)) {
+                if (!empty($this->postData)) {
                     $created = true;
                     $viewParams = [
-                        'title' => $_POST['title'] ?? null,
-                        'description' => $_POST['description'] ?? null
+                        'title' => $this->postData['title'] ?? null,
+                        'description' => $this->postData['description'] ?? null
                     ];
                     dump($viewParams);
                 }
