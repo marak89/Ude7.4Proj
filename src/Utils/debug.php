@@ -12,7 +12,7 @@ function dump($data)
     echo "<br><div style='
         display: inline-block;
         padding: 0 10px;
-        border: 1px solid gray;
+        border: 1px dashed gray;
         background-color: lightgray;
         '><pre>";
     print_r($data);
