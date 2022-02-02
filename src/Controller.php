@@ -52,15 +52,17 @@ class Controller
                         'title' => $data['title'] ?? null,
                         'description' => $data['description'] ?? null
                     ];
-                    //dump($viewParams);
                     $viewParams['created'] = $this->database->createNote([
                         'title'=>$viewParams['title'],
                         'description'=>$viewParams['description']
                     ]);
                 }
 
-                //$viewParams['created'] = $created;
+                $viewParams['created'] = $created;
                 $viewParams['resultCreate'] = "udało się";
+                if($viewParams['created']){
+                    header("Location:./");
+                }
                 break;
             case 'show':
 
