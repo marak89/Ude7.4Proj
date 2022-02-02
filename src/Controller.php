@@ -38,16 +38,12 @@ class Controller
 
     public function run():void
     {
-        $viewParams = [];
-
         switch($this->action()) {
             case 'create':
                 $page = "create";
-                $created = false;
 
                 $data = $this->getRequestPost();
                 if (!empty($data)) {
-                    $created = true;
                     $viewParams = [
                         'title' => $data['title'] ?? null,
                         'description' => $data['description'] ?? null
@@ -57,13 +53,10 @@ class Controller
                         'description'=>$data['description']
                     ]);
 
-
-                $viewParams['created'] = $created;
-                $viewParams['resultCreate'] = "udało się";
                 if($viewParams['created']){
                     header("Location:./?before=created");
                 } else {
-                    header("Location:./?before=creationError");
+                    header("Location:./?error=creationError");
                 }
                 }
                 break;
@@ -72,17 +65,15 @@ class Controller
                 break;
             default:
                 $page = "list";
-
                 $data = $this->getRequestGet();
-                if(!empty($data['before'])){
-                    $viewParams['before'] = $data['before'];
-                }
-
-                $viewParams['resultList'] = "Wyświetlamy notatki";
+                $viewParams = [
+                   'before' => $data['before'] ?? null,
+                   'notes' =>  $this->database->getNotes()
+                ];
                 break;
         }
 
-        $this->view->render($page, $viewParams);
+        $this->view->render($page, $viewParams ?? []);
     }
 
     private function action():string
