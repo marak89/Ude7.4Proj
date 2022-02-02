@@ -53,15 +53,18 @@ class Controller
                         'description' => $data['description'] ?? null
                     ];
                     $viewParams['created'] = $this->database->createNote([
-                        'title'=>$viewParams['title'],
-                        'description'=>$viewParams['description']
+                        'title'=>$data['title'],
+                        'description'=>$data['description']
                     ]);
-                }
+
 
                 $viewParams['created'] = $created;
                 $viewParams['resultCreate'] = "udało się";
                 if($viewParams['created']){
-                    header("Location:./");
+                    header("Location:./?before=created");
+                } else {
+                    header("Location:./?before=creationError");
+                }
                 }
                 break;
             case 'show':
@@ -69,6 +72,12 @@ class Controller
                 break;
             default:
                 $page = "list";
+
+                $data = $this->getRequestGet();
+                if(!empty($data['before'])){
+                    $viewParams['before'] = $data['before'];
+                }
+
                 $viewParams['resultList'] = "Wyświetlamy notatki";
                 break;
         }
