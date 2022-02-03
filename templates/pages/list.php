@@ -53,7 +53,7 @@
                     <td><?php echo htmlentities($note['title']) ?></td>
                     <td><?php echo htmlentities($note['created']) ?></td>
                     <td>
-                        <a href="/?action=show&id=<?php echo (int) $note['id'] ?>">
+                        <a href="./?action=show&id=<?php echo (int) $note['id'] ?>">
                             <button>Szczegóły</button>
                         </a>
                     </td>

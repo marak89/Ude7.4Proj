@@ -7,7 +7,9 @@ namespace App;
 require_once ("Exception/AppException.php");
 require_once ("Exception/StorageException.php");
 require_once ("Exception/ConfigurationException.php");
+require_once ("Exception/NotFoundException.php");
 
+use App\Exception\NotFoundException;
 use App\Exception\AppException;
 use App\Exception\StorageException;
 use PDOException;
@@ -32,6 +34,22 @@ class Database
         catch (PDOException $e){
             throw new StorageException('Connection Error - PDO ERROR ');
         }
+    }
+
+    public function getNote(int $id): array
+    {
+        try {
+            $query = "SELECT * FROM notes where id = $id;";
+            $note = ($this->connection->query($query))->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $e){
+            throw new StorageException('Nie udało się pobrać danych o notatce',400,$e);
+        }
+
+        if(!$note){
+            throw new NotFoundException('Nie ma notatki o id: ' . $id);
+        }
+
+        return $note;
     }
 
     public function getNotes(): array
