@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Controller;
 
 use App\Exception\ConfigurationException;
-
-require_once  ("Exception/ConfigurationException.php");
-require_once ("Database.php");
-require_once("View.php");
-
-
+use App\Request;
+use App\View;
+use App\Database;
 abstract class AbstractController
 {
     protected const DEFAULT_ACTION = 'list';

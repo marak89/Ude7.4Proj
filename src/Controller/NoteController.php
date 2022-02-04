@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
-require_once ("AbstractController.php");
+namespace App\Controller;
 
 use App\Exception\NotFoundException;
 
