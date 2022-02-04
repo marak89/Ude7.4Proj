@@ -31,6 +31,22 @@ class Database
         }
     }
 
+    public function editNote(int $id, array $note): bool
+    {
+        $title = $this->connection->quote($note['title']);
+        $description = $this->connection->quote($note['description']);
+        $query = "
+        UPDATE notes
+        SET title = $title, description = $description
+        WHERE id = $id
+        ";
+        try{
+           return (bool) $this->connection->exec($query);
+        } catch (Throwable $e){
+            throw new StorageException("Nie udało się zaktualizować notatki");
+        }
+    }
+
     public function getNote(int $id): array
     {
         try {

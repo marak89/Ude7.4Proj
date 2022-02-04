@@ -15,4 +15,7 @@
     <a href="./">
         <button>Powrót do listy notatek</button>
     </a>
+    <a href="./?action=edit&id=<?php echo $note['id'] ?>">
+        <button>Edytuj</button>
+    </a>
 </div>
