@@ -8,9 +8,7 @@ class View
 {
     function render(?string $page, array $params = []) :void
     {
-        //dump($params);
         $params = $this->escape($params);
-        //dump($params);
         include_once ("templates/layout.php");
     }
 
@@ -21,8 +19,10 @@ class View
         foreach ($params as $key => $param){
             if(is_array($param)){
                 $clearParams[$key] = $this->escape($param);
-            } else {
+            } else if($param) {
                 $clearParams[$key] = htmlentities($param);
+            } else {
+                $clearParams[$key] = $param;
             }
 
         }
