@@ -9,12 +9,16 @@ use Throwable;
 
 require_once('src/Utils/debug.php');
 require_once("src/Controller.php");
+require_once("src/Request.php");
+require_once("src/Exception/AppException.php");
 
 $configuration = require_once ("config/config.php");
 
+$request = new Request($_GET,$_POST);
+
 try {
     Controller::initConfiguration($configuration);
-    (new Controller(['get' => $_GET, 'post' => $_POST]))->run();
+    (new Controller($request))->run();
 } catch (AppException $ae){
     $errInfo = $ae->getMessage();
     echo "<h1>Wystąpił błąd w aplikacji!</h1>";

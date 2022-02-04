@@ -18,7 +18,7 @@ class Controller
 
     private static array $configuration = [];
 
-    private array $request ;
+    private Request $request ;
     private View $view;
     private Database $database;
 
@@ -27,7 +27,7 @@ class Controller
     self::$configuration = $configuration;
     }
 
-    public function __construct(array  $request)
+    public function __construct(Request  $request)
     {
         if(empty(self::$configuration['db'])){
             throw new ConfigurationException('Configuration Error');
@@ -39,33 +39,24 @@ class Controller
 
     public function run():void
     {
-        switch($this->action()) {
+            switch($this->action()) {
             case 'create':
-                $page = "create";
-
-                $data = $this->getRequestPost();
-                if (!empty($data)) {
-                    $viewParams = [
-                        'title' => $data['title'] ?? null,
-                        'description' => $data['description'] ?? null
-                    ];
-                    $viewParams['created'] = $this->database->createNote([
-                        'title'=>$data['title'],
-                        'description'=>$data['description']
-                    ]);
-
-                if($viewParams['created']){
-                    header("Location:./?before=created");
-                } else {
-                    header("Location:./?error=creationError");
-                }
-                exit;
+                $page = 'create';
+                if($this->request->hasPost()){
+                    if($this->database->createNote([
+                        'title' => $this->request->postParam('title'),
+                        'description' => $this->request->postParam('description')
+                    ])){
+                        header("Location:./?before=created");
+                    } else {
+                        header("Location:./?error=creationError");
+                    }
+                    exit;
                 }
                 break;
             case 'show':
-                $data = $this->getRequestGet();
                 $page='show';
-                $id = $data['id'] ?? null;
+                $id = (int) $this->request->getParam('id');
 
                 if(!$id){
                     header("Location:./?error=missingNoteId");
@@ -73,7 +64,7 @@ class Controller
                 }
 
                 try {
-                    $note = $this->database->getNote((int)$id);
+                    $note = $this->database->getNote($id);
                 } catch (NotFoundException $e){
                     header("Location: ./?error=noteNotFound");
                     exit;
@@ -83,15 +74,17 @@ class Controller
                     'note' => $note,
                 ];
                 break;
-            default:
+            case 'list':
                 $page = "list";
-                $data = $this->getRequestGet();
                 $viewParams = [
-                    'before' => $data['before'] ?? null,
-                    'error' => $data['error'] ?? null,
+                    'before' => $this->request->getParam('message'),
+                    'error' => $this->request->getParam("error"),
                     'notes' =>  $this->database->getNotes()
                 ];
                 break;
+                default:
+                    $page = 'page404';
+                    break;
         }
 
         $this->view->render($page, $viewParams ?? []);
@@ -99,18 +92,7 @@ class Controller
 
     private function action():string
     {
-        $get = $this->getRequestGet();
-        return $get['action'] ?? self::DEFAULT_ACTION;
-    }
-
-    private function getRequestPost(): array
-    {
-        return $this->request['post'] ?? [];
-    }
-
-    private function getRequestGet(): array
-    {
-        return $this->request['get'] ?? [];
+        return $this->request->getParam('action', self::DEFAULT_ACTION);
     }
 
 }

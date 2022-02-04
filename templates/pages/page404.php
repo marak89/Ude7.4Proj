@@ -1,0 +1,1 @@
+<h2>Strona o podanym adresie nie istnieje!</h2>
