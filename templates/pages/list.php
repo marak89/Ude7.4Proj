@@ -56,6 +56,9 @@
                         <a href="./?action=show&id=<?php echo $note['id'] ?>">
                             <button>Szczegóły</button>
                         </a>
+                        <a href="./?action=edit&id=<?php echo $note['id'] ?>">
+                            <button>Edytuj</button>
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>
