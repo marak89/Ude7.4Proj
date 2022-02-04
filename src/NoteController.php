@@ -3,42 +3,12 @@
 declare(strict_types=1);
 
 namespace App;
-require_once  ("Exception/ConfigurationException.php");
-require_once ("Database.php");
-require_once("View.php");
+require_once ("AbstractController.php");
 
-use App\Request;
-use Throwable;
-use App\Exception\ConfigurationException;
 use App\Exception\NotFoundException;
 
-
-
-class Controller
+class NoteController extends AbstractController
 {
-
-    private const DEFAULT_ACTION = 'list';
-
-    private static array $configuration = [];
-
-    private Request $request ;
-    private View $view;
-    private Database $database;
-
-    public static function initConfiguration(array $configuration):void
-    {
-    self::$configuration = $configuration;
-    }
-
-    public function __construct(Request  $request)
-    {
-        if(empty(self::$configuration['db'])){
-            throw new ConfigurationException('Configuration Error');
-        }
-        $this->database = new Database(self::$configuration['db']);
-        $this->view = new View();
-        $this->request = $request;
-    }
 
     public function createAction(): void
     {
@@ -78,26 +48,6 @@ class Controller
                 'error' => $this->request->getParam("error"),
                 'notes' =>  $this->database->getNotes()
             ]);
-    }
-
-    public function page404(){
-        header("Page not found",true,404);
-        $page = 'page404';
-        $this->view->render($page);
-    }
-
-    public function run():void
-    {
-        $action = $this->action().'Action';
-        if(!method_exists($this,$action)){
-            $action = self::DEFAULT_ACTION . "Action";
-        }
-        $this->$action();
-    }
-
-    private function action():string
-    {
-        return $this->request->getParam('action', self::DEFAULT_ACTION);
     }
 
 }
