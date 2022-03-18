@@ -25,8 +25,11 @@
                         <a href="./?action=show&id=<?php echo $note['id'] ?>">
                             <button>Szczegóły</button>
                         </a>
-                        <a href="./?action=edit&id=<?php echo $note['id'] ?>">
-                            <button>Edytuj</button>
+<!--                        <a href="./?action=edit&id=--><?php //echo $note['id'] ?><!--">-->
+<!--                            <button>Edytuj</button>-->
+<!--                        </a>-->
+                        <a href="./?action=delete&id=<?php echo $note['id'] ?>">
+                            <button>Usuń</button>
                         </a>
                     </td>
                 </tr>

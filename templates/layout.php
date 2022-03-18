@@ -53,6 +53,9 @@
                       case "creationError":
                           echo "Wystąpił błąd podczas zapisywania notatki.";
                           break;
+                      case 'deleted':
+                          echo "Notatka usunięta";
+                          break;
                       default:
                           echo"Wystapił nieoczekiwany wyjątek.";
                           break;

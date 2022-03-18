@@ -31,6 +31,17 @@ class Database
         }
     }
 
+    public function deleteNote(int $id): void
+    {
+
+        $query = "DELETE FROM notes WHERE id = $id LIMIT 1";
+        try {
+            $this->connection->exec($query);
+        } catch (Throwable $e){
+            throw new StorageException('Nie udało sie usunac notatki');
+        }
+    }
+
     public function editNote(int $id, array $note): bool
     {
         $title = $this->connection->quote($note['title']);
