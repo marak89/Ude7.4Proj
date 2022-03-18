@@ -34,11 +34,18 @@ class NoteController extends AbstractController
     }
     public function listAction(): void
     {
-        $this->view->render('list', [
+        $sortBy = $this->request->getParam('sortby', 'title');
+        $sortOrder = $this->request->getParam('sortorder', 'desc');
+
+        $this->view->render(
+            'list',
+            [
+                'sort' => ['by' => $sortBy, 'order' => $sortOrder],
+                'notes' => $this->database->getNotes($sortBy, $sortOrder),
                 'before' => $this->request->getParam('before'),
-                'error' => $this->request->getParam("error"),
-                'notes' =>  $this->database->getNotes()
-            ]);
+                'error' => $this->request->getParam('error')
+            ]
+        );
     }
 
     public function editAction(): void

@@ -74,13 +74,27 @@ class Database
         return $note;
     }
 
-    public function getNotes(): array
+    public function getNotes(string $sortBy, string $sortOrder): array
     {
         try {
-            $query = "SELECT id, title, created FROM notes;";
-            return ($this->connection->query($query))->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Throwable $e){
-            throw new StorageException('Nie udało się pobrać danych o notatkach');
+            if (!in_array($sortBy, ['created', 'title'])) {
+                $sortBy = 'title';
+            }
+
+            if (!in_array($sortOrder, ['asc', 'desc'])) {
+                $sortOrder = 'desc';
+            }
+
+            $query = "
+        SELECT id, title, created 
+        FROM notes
+        ORDER BY $sortBy $sortOrder
+      ";
+
+            $result = $this->connection->query($query);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            throw new StorageException('Nie udało się pobrać danych o notatkach', 400, $e);
         }
     }
 
