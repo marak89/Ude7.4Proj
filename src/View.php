@@ -6,27 +6,31 @@ namespace App;
 
 class View
 {
-    function render(?string $page, array $params = []) :void
+    function render(?string $page, array $params = []): void
     {
         $params = $this->escape($params);
-        include_once ("templates/layout.php");
+        include_once("templates/layout.php");
     }
 
-    private function escape(array $params):array
+    private function escape(array $params): array
     {
         $clearParams = [];
-
-        foreach ($params as $key => $param){
-            if(is_array($param)){
-                $clearParams[$key] = $this->escape($param);
-            } else if($param) {
-                $clearParams[$key] = htmlentities($param);
-            } else {
-                $clearParams[$key] = $param;
+        foreach ($params as $key => $param) {
+            switch (true) {
+                case is_array($param):
+                    $clearParams[$key] = $this->escape($param);
+                    break;
+                case is_int($param):
+                    $clearParams[$key] = $param;
+                    break;
+                case $param:
+                    $clearParams[$key] = htmlentities($param);
+                    break;
+                default:
+                    $clearParams[$key] = $param;
+                    break;
             }
-
         }
-
         return $clearParams;
     }
 }

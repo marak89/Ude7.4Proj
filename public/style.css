@@ -303,6 +303,9 @@ tr>td:nth-child(3) {
     cursor: pointer;
 }
 
+.current {
+    background-color: red;
+}
 .settings-form label {
     display: inline-block;
 }

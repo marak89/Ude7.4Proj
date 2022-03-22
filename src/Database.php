@@ -23,10 +23,9 @@ class Database
         try {
             $this->checkConfig($config);
             $this->createConnection($config);
-        } catch (StorageException $e){
-            throw new StorageException('Connection Error 123 : '. $e->getMessage());
-        }
-        catch (PDOException $e){
+        } catch (StorageException $e) {
+            throw new StorageException('Connection Error 123 : ' . $e->getMessage());
+        } catch (PDOException $e) {
             throw new StorageException('Connection Error - PDO ERROR ');
         }
     }
@@ -37,7 +36,7 @@ class Database
         $query = "DELETE FROM notes WHERE id = $id LIMIT 1";
         try {
             $this->connection->exec($query);
-        } catch (Throwable $e){
+        } catch (Throwable $e) {
             throw new StorageException('Nie udało sie usunac notatki');
         }
     }
@@ -51,9 +50,9 @@ class Database
         SET title = $title, description = $description
         WHERE id = $id
         ";
-        try{
-           return (bool) $this->connection->exec($query);
-        } catch (Throwable $e){
+        try {
+            return (bool)$this->connection->exec($query);
+        } catch (Throwable $e) {
             throw new StorageException("Nie udało się zaktualizować notatki");
         }
     }
@@ -63,20 +62,41 @@ class Database
         try {
             $query = "SELECT * FROM notes where id = $id;";
             $note = ($this->connection->query($query))->fetch(PDO::FETCH_ASSOC);
-        } catch (Throwable $e){
-            throw new StorageException('Nie udało się pobrać danych o notatce',400,$e);
+        } catch (Throwable $e) {
+            throw new StorageException('Nie udało się pobrać danych o notatce', 400, $e);
         }
 
-        if(!$note){
+        if (!$note) {
             throw new NotFoundException('Nie ma notatki o id: ' . $id);
         }
 
         return $note;
     }
 
-    public function getNotes(string $sortBy, string $sortOrder): array
+    public function getCount(): int
     {
         try {
+            $query = "
+        SELECT count(*) as cnt
+        FROM notes
+      ";
+            $result = $this->connection->query($query);
+            return (int) $result->fetch(PDO::FETCH_ASSOC)['cnt'];
+        } catch (Throwable $e) {
+            throw new StorageException('Nie udało się pobrać danych o liczbie notatek', 400, $e);
+        }
+    }
+
+    public function getNotes(
+        int    $pageNumber,
+        int    $pageSize,
+        string $sortBy,
+        string $sortOrder
+    ): array
+    {
+        try {
+            $limit = $pageSize;
+            $offset = ($pageNumber - 1) * $pageSize;
             if (!in_array($sortBy, ['created', 'title'])) {
                 $sortBy = 'title';
             }
@@ -89,6 +109,7 @@ class Database
         SELECT id, title, created 
         FROM notes
         ORDER BY $sortBy $sortOrder
+        LIMIT $offset, $limit
       ";
 
             $result = $this->connection->query($query);
@@ -98,9 +119,9 @@ class Database
         }
     }
 
-    public function createNote(array $data):bool
+    public function createNote(array $data): bool
     {
-        try{
+        try {
             $title = $this->connection->quote($data['title']);
             $description = $this->connection->quote($data['description']);
             $created = $this->connection->quote(date("Y-m-d H:i:s"));
@@ -108,13 +129,13 @@ class Database
             //dump($query);
             $result = $this->connection->exec($query);
             //dump($result);
-            if($result){
+            if ($result) {
                 return true;
             } else {
                 return false;
             }
-        } catch (Throwable $e){
-            throw new StorageException('Nie utworzono notatki',400);
+        } catch (Throwable $e) {
+            throw new StorageException('Nie utworzono notatki', 400);
             exit();
         }
         echo "Tworzymy notatke";
@@ -123,23 +144,23 @@ class Database
     private function createConnection(array $config): void
     {
         $dsn = "mysql:dbname={$config['dbname']};host={$config['host']}";
-        $this->connection = new PDO($dsn, $config['username'], $config['password'],[
+        $this->connection = new PDO($dsn, $config['username'], $config['password'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
     }
 
     private function checkConfig($config): void
     {
-        if(empty($config['dbname']))
+        if (empty($config['dbname']))
             throw new StorageException('not find dbname parametr');
 
-        if(empty($config['host']))
+        if (empty($config['host']))
             throw new StorageException('not find host parametr');
 
-        if(empty($config['username']))
+        if (empty($config['username']))
             throw new StorageException('not find username parametr');
 
-        if(empty($config['password']))
+        if (empty($config['password']))
             throw new StorageException('not find password parametr');
     }
 }
