@@ -7,11 +7,17 @@ $page = $params['page'] ?? [];
 $size = $page['size'] ?? 10;
 $number = $page['number'] ?? 1;
 $pages = $page['pages'] ?? 1;
+
+$phrase = $params['phrase'] ?? null;
 ?>
 <div class="list">
     <div>
         <form class="settings-form" action="./" method="GET">
             <div>
+                <div>
+                    <label>Wyszukaj: <input type="text" name="phrase" value="<?php echo $phrase; ?>"></label>
+                </div>
+
                 <div>Sortuj po:</div>
                 <label>Tytule: <input name="sortby" type="radio"
                                       value="title" <?php echo $by === 'title' ? 'checked' : '' ?> /></label>
@@ -77,10 +83,10 @@ $pages = $page['pages'] ?? 1;
         <ul class="pagination">
             <?php for ($i = 1; $i <= $pages; $i++) { ?>
                 <li>
-                    <a href="./?sortby=<?php echo $by; ?>&sortorder=<?php echo $order ?>&pagesize=<?php echo $size?>&page=<?php echo $i?>"
+                    <a href="./?sortby=<?php echo $by; ?>&sortorder=<?php echo $order ?>&pagesize=<?php echo $size ?>&page=<?php echo $i ?><?php echo $phrase ? "&phrase=$phrase":'' ?>"
 
                     >
-                        <button  <?php echo $i===$number ? 'class=current':''; ?> ><?php echo $i; ?></button>
+                        <button <?php echo $i === $number ? 'class=current' : ''; ?> ><?php echo $i; ?></button>
                     </a>
                 </li>
             <?php } ?>

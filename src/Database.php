@@ -73,15 +73,18 @@ class Database
         return $note;
     }
 
-    public function getCount(): int
+    public function getCount(string $phrase = null): int
     {
         try {
             $query = "
-        SELECT count(*) as cnt
-        FROM notes
-      ";
+        SELECT count(*) as cnt FROM notes ";
+
+            if (is_string($phrase)) {
+                $query .= " WHERE `description` LIKE '%$phrase%' OR `title` LIKE '%$phrase%' ";
+            }
+
             $result = $this->connection->query($query);
-            return (int) $result->fetch(PDO::FETCH_ASSOC)['cnt'];
+            return (int)$result->fetch(PDO::FETCH_ASSOC)['cnt'];
         } catch (Throwable $e) {
             throw new StorageException('Nie udało się pobrać danych o liczbie notatek', 400, $e);
         }
@@ -91,7 +94,8 @@ class Database
         int    $pageNumber,
         int    $pageSize,
         string $sortBy,
-        string $sortOrder
+        string $sortOrder,
+        string $phrase = null
     ): array
     {
         try {
@@ -105,13 +109,15 @@ class Database
                 $sortOrder = 'desc';
             }
 
-            $query = "
-        SELECT id, title, created 
-        FROM notes
-        ORDER BY $sortBy $sortOrder
-        LIMIT $offset, $limit
-      ";
+            $query = " SELECT id, title, created 
+                        FROM notes ";
+            if (is_string($phrase)) {
+                $query .= " WHERE `description` LIKE '%$phrase%' OR `title` LIKE '%$phrase%' ";
+            }
+            $query .= " ORDER BY $sortBy $sortOrder
+                        LIMIT $offset, $limit";
 
+//            var_dump($query);
             $result = $this->connection->query($query);
             return $result->fetchAll(PDO::FETCH_ASSOC);
         } catch (Throwable $e) {
