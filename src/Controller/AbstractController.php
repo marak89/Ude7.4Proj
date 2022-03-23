@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Exception\ConfigurationException;
+use App\Exception\NotFoundException;
+use App\Exception\StorageException;
 use App\Request;
 use App\View;
 use App\Database;
@@ -35,11 +37,20 @@ abstract class AbstractController
 
     public function run():void
     {
-        $action = $this->action().'Action';
-        if(!method_exists($this,$action)){
-            $action = self::DEFAULT_ACTION . "Action";
+        try {
+            $action = $this->action() . 'Action';
+            if (!method_exists($this, $action)) {
+                $action = self::DEFAULT_ACTION . "Action";
+            }
+            throw new NotFoundException('Not found exception ');
+            $this->$action();
+        } catch (StorageException|NotFoundException $e) {
+            $this->view->render(
+                'error',
+                ['message' => $e->getMessage()]
+            );
         }
-        $this->$action();
+
     }
 
     private function action():string
