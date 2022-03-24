@@ -2,35 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Model;
 
 use App\Exception\NotFoundException;
-use App\Exception\AppException;
 use App\Exception\StorageException;
-use PDOException;
-use Exception;
-use Throwable;
-use PDO;
+use \PDOException;
+use \Throwable;
+use \PDO;
 
 
-class Database
+class Database extends AbstractModel implements ModelInterface
 {
-
-    private PDO $connection;
-
     public function __construct(array $config)
     {
-        try {
-            $this->checkConfig($config);
-            $this->createConnection($config);
-        } catch (StorageException $e) {
-            throw new StorageException('Connection Error 123 : ' . $e->getMessage());
-        } catch (PDOException $e) {
-            throw new StorageException('Connection Error - PDO ERROR ');
-        }
+        parent::__construct($config);
     }
 
-    public function deleteNote(int $id): void
+    public function delete(int $id): void
     {
 
         $query = "DELETE FROM notes WHERE id = $id LIMIT 1";
@@ -41,7 +29,7 @@ class Database
         }
     }
 
-    public function editNote(int $id, array $note): bool
+    public function edit(int $id, array $note): bool
     {
         $title = $this->connection->quote($note['title']);
         $description = $this->connection->quote($note['description']);
@@ -57,7 +45,7 @@ class Database
         }
     }
 
-    public function getNote(int $id): array
+    public function get(int $id): array
     {
         try {
             $query = "SELECT * FROM notes where id = $id;";
@@ -73,7 +61,7 @@ class Database
         return $note;
     }
 
-    public function getCount(string $phrase = null): int
+    public function count(string $phrase = null): int
     {
         try {
             $query = "
@@ -90,7 +78,7 @@ class Database
         }
     }
 
-    public function getNotes(
+    public function list(
         int    $pageNumber,
         int    $pageSize,
         string $sortBy,
@@ -98,34 +86,10 @@ class Database
         string $phrase = null
     ): array
     {
-        try {
-            $limit = $pageSize;
-            $offset = ($pageNumber - 1) * $pageSize;
-            if (!in_array($sortBy, ['created', 'title'])) {
-                $sortBy = 'title';
-            }
-
-            if (!in_array($sortOrder, ['asc', 'desc'])) {
-                $sortOrder = 'desc';
-            }
-
-            $query = " SELECT id, title, created 
-                        FROM notes ";
-            if (is_string($phrase)) {
-                $query .= " WHERE `description` LIKE '%$phrase%' OR `title` LIKE '%$phrase%' ";
-            }
-            $query .= " ORDER BY $sortBy $sortOrder
-                        LIMIT $offset, $limit";
-
-//            var_dump($query);
-            $result = $this->connection->query($query);
-            return $result->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Throwable $e) {
-            throw new StorageException('Nie udało się pobrać danych o notatkach', 400, $e);
-        }
+        return $this->findBy($pageNumber,$pageSize,$sortBy,$sortOrder,$phrase);
     }
 
-    public function createNote(array $data): bool
+    public function create(array $data): bool
     {
         try {
             $title = $this->connection->quote($data['title']);
@@ -147,26 +111,39 @@ class Database
         echo "Tworzymy notatke";
     }
 
-    private function createConnection(array $config): void
+    private function findBy(
+        int    $pageNumber,
+        int    $pageSize,
+        string $sortBy,
+        string $sortOrder,
+        ?string $phrase = null
+    ): array
     {
-        $dsn = "mysql:dbname={$config['dbname']};host={$config['host']}";
-        $this->connection = new PDO($dsn, $config['username'], $config['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ]);
+        try {
+            $limit = $pageSize;
+            $offset = ($pageNumber - 1) * $pageSize;
+            if (!in_array($sortBy, ['created', 'title'])) {
+                $sortBy = 'title';
+            }
+            if (!in_array($sortOrder, ['asc', 'desc'])) {
+                $sortOrder = 'desc';
+            }
+            $query = " SELECT id, title, created 
+                        FROM notes ";
+            if ($phrase) {
+                $phrase = $this->connection->quote('%'.$phrase.'%',PDO::PARAM_STR);
+                $query .= " WHERE `description` LIKE ($phrase) OR `title` LIKE ($phrase) ";
+            }
+            $query .= " ORDER BY $sortBy $sortOrder
+                        LIMIT $offset, $limit";
+//            var_dump($query);
+            $result = $this->connection->query($query);
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            throw new StorageException('Nie udało się pobrać danych o notatkach', 400, $e);
+        }
+
     }
 
-    private function checkConfig($config): void
-    {
-        if (empty($config['dbname']))
-            throw new StorageException('not find dbname parametr');
 
-        if (empty($config['host']))
-            throw new StorageException('not find host parametr');
-
-        if (empty($config['username']))
-            throw new StorageException('not find username parametr');
-
-        if (empty($config['password']))
-            throw new StorageException('not find password parametr');
-    }
 }

@@ -9,7 +9,7 @@ use App\Exception\NotFoundException;
 use App\Exception\StorageException;
 use App\Request;
 use App\View;
-use App\Database;
+use App\Model\Database;
 abstract class AbstractController
 {
     protected const DEFAULT_ACTION = 'list';
@@ -42,7 +42,6 @@ abstract class AbstractController
             if (!method_exists($this, $action)) {
                 $action = self::DEFAULT_ACTION . "Action";
             }
-            throw new NotFoundException('Not found exception ');
             $this->$action();
         } catch (StorageException|NotFoundException $e) {
             $this->view->render(

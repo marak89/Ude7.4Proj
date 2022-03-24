@@ -12,7 +12,7 @@ class NoteController extends AbstractController
     public function createAction(): void
     {
         if ($this->request->hasPost()) {
-            if ($this->database->createNote([
+            if ($this->database->create([
                 'title' => $this->request->postParam('title'),
                 'description' => $this->request->postParam('description')
             ])) {
@@ -45,8 +45,8 @@ class NoteController extends AbstractController
             $pageSize = self::PAGE_SIZE;
         }
 
-        $notes = $this->database->getNotes($pageNumber, $pageSize, $sortBy, $sortOrder, $phrase);
-        $notesCount = $this->database->getCount($phrase);
+        $notes = $this->database->list($pageNumber, $pageSize, $sortBy, $sortOrder, $phrase);
+        $notesCount = $this->database->count($phrase);
 
         $this->view->render(
             'list',
@@ -75,7 +75,7 @@ class NoteController extends AbstractController
                     'title' => $this->request->postParam('title'),
                     'description' => $this->request->postParam('description')
                 ];
-                if ($this->database->editNote($noteId, $noteData)) {
+                if ($this->database->edit($noteId, $noteData)) {
                     $this->redirect('./', ['action' => 'show', 'id' => (string)$noteId, 'before' => 'saved']);
                 } else {
                     $this->redirect('./', ['error' => 'noSaved']);
@@ -98,7 +98,7 @@ class NoteController extends AbstractController
     {
         if ($this->request->isPost()) {
             $id = (int)$this->request->postParam('id');
-            $this->database->deleteNote($id);
+            $this->database->delete($id);
             $this->redirect('./', ['before' => 'deleted']);
         }
         $this->view->render('delete', [
@@ -112,6 +112,6 @@ class NoteController extends AbstractController
         if (!$noteId) {
             $this->redirect('./', ['error' => 'missingNoteId']);
         }
-        return $this->database->getNote($noteId);
+        return $this->database->get($noteId);
     }
 }
